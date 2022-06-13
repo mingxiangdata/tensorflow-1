@@ -250,8 +250,7 @@ class SignatureRunner(object):
     # Resize input tensors
     for input_name, value in kwargs.items():
       if input_name not in self._inputs:
-        raise ValueError('Invalid Input name (%s) for SignatureDef' %
-                         input_name)
+        raise ValueError(f'Invalid Input name ({input_name}) for SignatureDef')
       self._interpreter_wrapper.ResizeInputTensor(
           self._inputs[input_name], np.array(value.shape, dtype=np.int32),
           False, self._subgraph_index)
@@ -263,11 +262,11 @@ class SignatureRunner(object):
                                           self._subgraph_index)
 
     self._interpreter_wrapper.Invoke(self._subgraph_index)
-    result = {}
-    for output_name, output_index in self._outputs:
-      result[output_name] = self._interpreter_wrapper.GetTensor(
-          output_index, self._subgraph_index)
-    return result
+    return {
+        output_name: self._interpreter_wrapper.GetTensor(output_index,
+                                                         self._subgraph_index)
+        for output_name, output_index in self._outputs
+    }
 
   def get_input_details(self):
     """Gets input tensor details.
@@ -295,10 +294,10 @@ class SignatureRunner(object):
       + `sparsity_parameters`: A dictionary of parameters used to encode a
         sparse tensor. This is empty if the tensor is dense.
     """
-    result = {}
-    for input_name, tensor_index in self._inputs.items():
-      result[input_name] = self._interpreter._get_tensor_details(tensor_index)  # pylint: disable=protected-access
-    return result
+    return {
+        input_name: self._interpreter._get_tensor_details(tensor_index)
+        for input_name, tensor_index in self._inputs.items()
+    }
 
   def get_output_details(self):
     """Gets output tensor details.
@@ -308,10 +307,10 @@ class SignatureRunner(object):
       dictionary with details about an output tensor. The dictionary contains
       the same fields as described for `get_input_details()`.
     """
-    result = {}
-    for output_name, tensor_index in self._outputs:
-      result[output_name] = self._interpreter._get_tensor_details(tensor_index)  # pylint: disable=protected-access
-    return result
+    return {
+        output_name: self._interpreter._get_tensor_details(tensor_index)
+        for output_name, tensor_index in self._outputs
+    }
 
 
 @_tf_export('lite.experimental.OpResolverType')
@@ -443,14 +442,16 @@ class Interpreter(object):
       self._custom_op_registerers = []
 
     actual_resolver_type = experimental_op_resolver_type
-    if experimental_preserve_all_tensors and (
-        experimental_op_resolver_type == OpResolverType.AUTO or
-        experimental_op_resolver_type == OpResolverType.BUILTIN):
+    if experimental_preserve_all_tensors and experimental_op_resolver_type in [
+        OpResolverType.AUTO,
+        OpResolverType.BUILTIN,
+    ]:
       actual_resolver_type = OpResolverType.BUILTIN_WITHOUT_DEFAULT_DELEGATES
     op_resolver_id = _get_op_resolver_id(actual_resolver_type)
     if op_resolver_id is None:
-      raise ValueError('Unrecognized passed in op resolver type: {}'.format(
-          experimental_op_resolver_type))
+      raise ValueError(
+          f'Unrecognized passed in op resolver type: {experimental_op_resolver_type}'
+      )
 
     if model_path and not model_content:
       custom_op_registerers_by_name = [
@@ -464,7 +465,7 @@ class Interpreter(object):
               model_path, op_resolver_id, custom_op_registerers_by_name,
               custom_op_registerers_by_func, experimental_preserve_all_tensors))
       if not self._interpreter:
-        raise ValueError('Failed to open {}'.format(model_path))
+        raise ValueError(f'Failed to open {model_path}')
     elif model_content and not model_path:
       custom_op_registerers_by_name = [
           x for x in self._custom_op_registerers if isinstance(x, str)
@@ -480,7 +481,7 @@ class Interpreter(object):
           _interpreter_wrapper.CreateWrapperFromBuffer(
               model_content, op_resolver_id, custom_op_registerers_by_name,
               custom_op_registerers_by_func, experimental_preserve_all_tensors))
-    elif not model_content and not model_path:
+    elif not model_content:
       raise ValueError('`model_path` or `model_content` must be specified.')
     else:
       raise ValueError('Can\'t both provide `model_path` and `model_content`')
@@ -564,14 +565,12 @@ class Interpreter(object):
     op_inputs = self._interpreter.NodeInputs(op_index)
     op_outputs = self._interpreter.NodeOutputs(op_index)
 
-    details = {
+    return {
         'index': op_index,
         'op_name': op_name,
         'inputs': op_inputs,
         'outputs': op_outputs,
     }
-
-    return details
 
   def _get_tensor_details(self, tensor_index):
     """Gets tensor details.
@@ -610,7 +609,7 @@ class Interpreter(object):
     if not tensor_type:
       raise ValueError('Could not get tensor details')
 
-    details = {
+    return {
         'name': tensor_name,
         'index': tensor_index,
         'shape': tensor_size,
@@ -622,10 +621,8 @@ class Interpreter(object):
             'zero_points': tensor_quantization_params[1],
             'quantized_dimension': tensor_quantization_params[2],
         },
-        'sparsity_parameters': tensor_sparsity_params
+        'sparsity_parameters': tensor_sparsity_params,
     }
-
-    return details
 
   # Experimental and subject to change
   def _get_ops_details(self):

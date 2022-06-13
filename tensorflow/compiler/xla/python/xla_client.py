@@ -135,11 +135,10 @@ def _get_local_backends():
       if name == 'cpu':
         # We always expect CPU to initialize successfully.
         raise
-      else:
-        # If the backend isn't built into the binary, or if it has no devices,
-        # we expect a RuntimeError.
-        logging.vlog(1, "Error initializing backend '%s': %s" % (name, err))
-        continue
+      # If the backend isn't built into the binary, or if it has no devices,
+      # we expect a RuntimeError.
+      logging.vlog(1, "Error initializing backend '%s': %s" % (name, err))
+      continue
     _local_backends[name] = backend
   return _local_backends
 
@@ -160,8 +159,8 @@ def get_local_backend(name=None):
     try:
       return backends[name]
     except KeyError:
-      raise RuntimeError('Unknown backend %s. Available: %s' %
-                         (name, list(backends.keys())))
+      raise RuntimeError(
+          f'Unknown backend {name}. Available: {list(backends.keys())}')
 
   return list(backends.values())[-1]
 
@@ -540,16 +539,15 @@ def make_dot_dimension_numbers(
   Returns:
     A `DotDimensionNumbers` object.
   """
-  if isinstance(dimension_numbers, (list, tuple)):
-    (lhs_contract, rhs_contract), (lhs_batch, rhs_batch) = dimension_numbers
-    dot_dims_proto = DotDimensionNumbers()
-    dot_dims_proto.lhs_contracting_dimensions.extend(lhs_contract)
-    dot_dims_proto.rhs_contracting_dimensions.extend(rhs_contract)
-    dot_dims_proto.lhs_batch_dimensions.extend(lhs_batch)
-    dot_dims_proto.rhs_batch_dimensions.extend(rhs_batch)
-    return dot_dims_proto
-  else:
+  if not isinstance(dimension_numbers, (list, tuple)):
     return dimension_numbers
+  (lhs_contract, rhs_contract), (lhs_batch, rhs_batch) = dimension_numbers
+  dot_dims_proto = DotDimensionNumbers()
+  dot_dims_proto.lhs_contracting_dimensions.extend(lhs_contract)
+  dot_dims_proto.rhs_contracting_dimensions.extend(rhs_contract)
+  dot_dims_proto.lhs_batch_dimensions.extend(lhs_batch)
+  dot_dims_proto.rhs_batch_dimensions.extend(rhs_batch)
+  return dot_dims_proto
 
 
 class ConvolutionDimensionNumbers(object):
@@ -686,13 +684,9 @@ def _make_replica_group_proto(replica_group):
 
 def make_replica_groups(replica_groups):
   if replica_groups is None:
-    replica_groups_protos = []  # special value for XLA API
-  else:
-    replica_groups = list(replica_groups)
-    replica_groups_protos = [
-        _make_replica_group_proto(group) for group in replica_groups
-    ]
-  return replica_groups_protos
+    return []
+  replica_groups = list(replica_groups)
+  return [_make_replica_group_proto(group) for group in replica_groups]
 
 
 Traceback = _xla.Traceback
