@@ -43,10 +43,7 @@ from tensorflow.python.platform import test
 def xla_device():
   devices = device_lib.list_local_devices()
   def find_type(device_type):
-    for d in devices:
-      if d.device_type == device_type:
-        return d
-    return None
+    return next((d for d in devices if d.device_type == device_type), None)
   d = find_type("TPU") or find_type("XLA_GPU") or find_type("XLA_CPU")
   if d is None:
     raise ValueError(
@@ -267,9 +264,7 @@ class StatefulRandomOpsTest(xla_test.XLATestCase, parameterized.TestCase):
       n = 1000
       seed = 12
       gen = random.Generator.from_seed(seed=seed, alg=alg)
-      maxval = 1
-      if dtype.is_integer:
-        maxval = 100
+      maxval = 100 if dtype.is_integer else 1
       t = gen.uniform(shape=[n], maxval=maxval, dtype=dtype)
       x = t.numpy().astype(float)
       if maxval > 1:

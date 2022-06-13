@@ -197,10 +197,7 @@ def TestFactory(xla_backend,
   class ComputationsWithConstantsTest(ComputationTest):
     """Tests focusing on Constant ops."""
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in int_dtypes + float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in int_dtypes + float_dtypes)
     def testConstantScalarSum(self, dtype):
       if dtype == np.int8 and self.backend.platform == "tpu":
         self.skipTest("TPU doesn't support int8")
@@ -208,10 +205,7 @@ def TestFactory(xla_backend,
       ops.Add(ops.Constant(c, dtype(1.11)), ops.Constant(c, dtype(3.14)))
       self._ExecuteAndCompareClose(c, expected=[dtype(1.11) + dtype(3.14)])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testConstantVectorMul(self, dtype):
       c = self._NewComputation()
       ops.Mul(
@@ -220,10 +214,7 @@ def TestFactory(xla_backend,
       self._ExecuteAndCompareClose(
           c, expected=[[-3, 6.6, 2.4, -2.1]], rtol=3e-3)
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testConstantVectorScalarDiv(self, dtype):
       c = self._NewComputation()
       ops.Div(
@@ -232,10 +223,7 @@ def TestFactory(xla_backend,
       self._ExecuteAndCompareClose(
           c, expected=[[0.75, 1.25, 1.5, -5.4]], rtol=2e-3)
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testConstantVectorScalarPow(self, dtype):
       c = self._NewComputation()
       ops.Pow(
@@ -249,10 +237,7 @@ def TestFactory(xla_backend,
       self._ExecuteAndCompareExact(
           c, expected=[np.arange(10, dtype=np.float32)])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in int_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in int_dtypes)
     def testBroadcastedIota(self, dtype):
       c = self._NewComputation()
       shape = xla_client.Shape.array_shape(
@@ -282,10 +267,7 @@ def TestFactory(xla_backend,
           ops.Constant(c, NumpyArrayBool([True, True, False, False])))
       self._ExecuteAndCompareExact(c, expected=[[False, True, True, False]])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testSum2D(self, dtype):
       c = self._NewComputation()
       ops.Add(
@@ -314,10 +296,7 @@ def TestFactory(xla_backend,
           ops.Constant(c, NumpyArrayS32([1])))
       self._ExecuteAndCompareClose(c, expected=[[2**31 - 1]])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testSum2DWith1DBroadcastDim0(self, dtype):
       # sum of a 2D array with a 1D array where the latter is replicated across
       # dimension 0 to match the former's shape.
@@ -331,10 +310,7 @@ def TestFactory(xla_backend,
       self._ExecuteAndCompareClose(
           c, expected=[[[11, 12, 13], [24, 25, 26], [37, 38, 39]]])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testSum2DWith1DBroadcastDim1(self, dtype):
       # sum of a 2D array with a 1D array where the latter is replicated across
       # dimension 1 to match the former's shape.
@@ -348,10 +324,7 @@ def TestFactory(xla_backend,
       self._ExecuteAndCompareClose(
           c, expected=[[[11, 22, 33], [14, 25, 36], [17, 28, 39]]])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testConstantAxpy(self, dtype):
       c = self._NewComputation()
       ops.Add(
@@ -472,10 +445,7 @@ def TestFactory(xla_backend,
   class ParametersTest(ComputationTest):
     """Tests focusing on Parameter ops and argument-passing."""
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in int_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in int_dtypes)
     def testScalarTimesVector(self, dtype):
       c = self._NewComputation()
       arg0 = np.array(3, dtype=dtype)
@@ -487,10 +457,7 @@ def TestFactory(xla_backend,
           c, arguments=[arg0, arg1], expected=[arg0 * arg1])
 
     # TODO(phawkins): test comparison harness doesn't support bfloat16
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes if dtype != bfloat16)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes if dtype != bfloat16)
     def testScalarMinusVectorExplicitNumbering(self, dtype):
       # Use explicit numbering and pass parameter_num first. Sub is used since
       # it's not commutative and can help catch parameter reversal within the
@@ -585,8 +552,7 @@ def TestFactory(xla_backend,
       buffer = self.backend.buffer_from_pyval(arg)
       if not isinstance(buffer, xla_client.DeviceArrayBase):
         raise unittest.SkipTest(
-            "The objectof type {} do not extend DeviceArrayBase".format(
-                type(buffer)))
+            f"The objectof type {type(buffer)} do not extend DeviceArrayBase")
 
       self.assertEqual(buffer.__array_priority__, 100)
       self.assertEqual(buffer.shape, (1, 3))
@@ -665,7 +631,7 @@ def TestFactory(xla_backend,
 
     def testStandardTypes(self):
       for dtype in standard_dtypes:
-        if dtype == bfloat16 or dtype == np.complex128:
+        if dtype in [bfloat16, np.complex128]:
           continue
         arr = self.backend.buffer_from_pyval(np.array([0, 1], dtype))
         arr = arr.to_py()
@@ -710,10 +676,7 @@ def TestFactory(xla_backend,
     around the op being tested.
     """
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testConcatenate(self, dtype):
       c = self._NewComputation()
       args = (
@@ -725,14 +688,8 @@ def TestFactory(xla_backend,
           c, expected=[np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0], dtype=dtype)])
 
     # pyformat: disable
-    @parameterized.named_parameters({
-        "testcase_name": "_{}_{}".format(src_dtype.__name__,
-                                         dst_dtype.__name__),
-        "src_dtype": src_dtype,
-        "dst_dtype": dst_dtype,
-    } for src_dtype, dst_dtype in itertools.permutations(
+    @parameterized.named_parameters({"testcase_name": f"_{src_dtype.__name__}_{dst_dtype.__name__}", "src_dtype": src_dtype, "dst_dtype": dst_dtype} for src_dtype, dst_dtype in itertools.permutations(
         [np.bool_, np.int32, np.int64, np.float32, np.float64], 2))
-    # pyformat: enable
     def testConvertElementType(self, src_dtype, dst_dtype):
       if ((src_dtype in [np.int64, np.float64] or
            dst_dtype in [np.int64, np.float64]) and
@@ -753,16 +710,7 @@ def TestFactory(xla_backend,
       np.testing.assert_equal(result[0], expected)
 
     # pyformat: disable
-    @parameterized.named_parameters(
-        {
-            "testcase_name": "_{}_{}".format(src_dtype.__name__,
-                                             dst_dtype.__name__),
-            "src_dtype": src_dtype,
-            "dst_dtype": dst_dtype,
-        }
-        for dtypes in [[np.int32, np.float32], [np.int64, np.float64]]
-        for src_dtype, dst_dtype in itertools.permutations(dtypes, 2))
-    # pyformat: enable
+    @parameterized.named_parameters({"testcase_name": f"_{src_dtype.__name__}_{dst_dtype.__name__}", "src_dtype": src_dtype, "dst_dtype": dst_dtype} for dtypes in [[np.int32, np.float32], [np.int64, np.float64]] for src_dtype, dst_dtype in itertools.permutations(dtypes, 2))
     def testBitcastConvertType(self, src_dtype, dst_dtype):
       if (np.float64 in (src_dtype, dst_dtype) and
           self.backend.platform == "tpu"):
@@ -824,10 +772,7 @@ def TestFactory(xla_backend,
         self._ExecuteAndCompareExact(c, expected=[lhs])
 
     # TODO(phawkins): np.dot implementation doesn't support bfloat16
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes if dtype != bfloat16)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes if dtype != bfloat16)
     def testDotMatrixVector(self, dtype):
       c = self._NewComputation()
       lhs = np.array([[2.0, 3.0], [4.0, 5.0]], dtype=dtype)
@@ -836,10 +781,7 @@ def TestFactory(xla_backend,
       self._ExecuteAndCompareClose(c, expected=[np.dot(lhs, rhs)])
 
     # TODO(phawkins): np.dot implementation doesn't support bfloat16
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes if dtype != bfloat16)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes if dtype != bfloat16)
     def testDotMatrixMatrix(self, dtype):
       c = self._NewComputation()
       lhs = np.array([[2.0, 3.0], [4.0, 5.0]], dtype=dtype)
@@ -1572,10 +1514,7 @@ def TestFactory(xla_backend,
       np.testing.assert_equal(
           np.array([eps + 1, 2 - eps], dtype=np.float32), out)
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testRegularizedIncompleteBeta(self, dtype):
       x = np.array([0.53787335, 0.24015466, 0.47494545, 0.13567594, 0.95114538],
                    dtype=dtype)
@@ -1597,8 +1536,8 @@ def TestFactory(xla_backend,
 
     def _CreateConstantComputation(self, in_dtype, out_dtype):
       """Computation (A) -> B that returns a constant 1 for any input."""
-      c = self._NewComputation("constant_{}_{}_one".format(
-          in_dtype.__name__, out_dtype.__name__))
+      c = self._NewComputation(
+          f"constant_{in_dtype.__name__}_{out_dtype.__name__}_one")
       ops.Parameter(
           c, 0,
           xla_client.shape_from_pyval(np.array(
@@ -1646,10 +1585,7 @@ def TestFactory(xla_backend,
                        [[1, 2, 3], [4, 5, 6]], [[1, 2, 3], [4, 5, 6]]],
                       dtype=dtype)
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testCall(self, dtype):
       c = self._NewComputation()
       ops.Call(
@@ -1658,11 +1594,7 @@ def TestFactory(xla_backend,
           operands=(ops.Constant(c, dtype(5.0)),))
       self._ExecuteAndCompareClose(c, expected=[10.0])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}_{}".format(in_dtype.__name__, out_dtype.__name__),
-        "in_dtype": in_dtype,
-        "out_dtype": out_dtype,
-    } for in_dtype, out_dtype in [[np.float32, np.int32]])
+    @parameterized.named_parameters({"testcase_name": f"_{in_dtype.__name__}_{out_dtype.__name__}", "in_dtype": in_dtype, "out_dtype": out_dtype} for in_dtype, out_dtype in [[np.float32, np.int32]])
     def testMapEachElementToConstant(self, in_dtype, out_dtype):
       c = self._NewComputation()
       ops.Map(c,
@@ -1670,10 +1602,7 @@ def TestFactory(xla_backend,
               self._CreateConstantComputation(in_dtype, out_dtype), [0])
       self._ExecuteAndCompareExact(c, expected=[[1, 1, 1, 1]])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testMapMulBy2(self, dtype):
       if dtype == np.float64 and self.backend.platform == "tpu":
         self.skipTest("TPU doesn't support float64")
@@ -1682,10 +1611,7 @@ def TestFactory(xla_backend,
               self._CreateMulBy2Computation(dtype), [0])
       self._ExecuteAndCompareClose(c, expected=[[2.0, 4.0, 6.0, 8.0]])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testSimpleMapChain(self, dtype):
       if dtype == np.float64 and self.backend.platform == "tpu":
         self.skipTest("TPU doesn't support float64")
@@ -1717,10 +1643,7 @@ def TestFactory(xla_backend,
       self._ExecuteAndCompareClose(
           c, expected=[[0.2, 0.4, 0.75, 1.0]], rtol=1e-3)
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testSelectAndScatter(self, dtype):
       if dtype == np.float64 and self.backend.platform == "tpu":
         self.skipTest("TPU doesn't support float64")
@@ -1744,10 +1667,7 @@ def TestFactory(xla_backend,
       self._ExecuteAndCompareClose(
           c, expected=[[[1., 1., 1.2], [1.1, 1., 1.]]], rtol=5e-3)
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testReduce1DtoScalar(self, dtype):
       c = self._NewComputation()
       ops.Reduce(
@@ -1761,11 +1681,7 @@ def TestFactory(xla_backend,
       self._ExecuteAndCompareClose(c, expected=[10])
 
     # TODO(phawkins): test comparison harness doesn't support bfloat16
-    @parameterized.named_parameters({
-        "testcase_name": "_{}_dim{}".format(dtype.__name__, dim),
-        "dtype": dtype,
-        "dim": dim,
-    } for dtype in float_dtypes if dtype != bfloat16 for dim in range(2))
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}_dim{dim}", "dtype": dtype, "dim": dim} for dtype in float_dtypes if dtype != bfloat16 for dim in range(2))
     def testReduce2DTo1D(self, dtype, dim):
       input_array = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], dtype=dtype)
       c = self._NewComputation()
@@ -1777,11 +1693,7 @@ def TestFactory(xla_backend,
           dimensions_to_reduce=[dim])
       self._ExecuteAndCompareClose(c, expected=[np.sum(input_array, axis=dim)])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}_dims[{}]".format(dtype.__name__, dims),
-        "dtype": dtype,
-        "dims": tuple(dims)
-    } for dtype in float_dtypes for dims in itertools.permutations(range(3)))
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}_dims[{dims}]", "dtype": dtype, "dims": tuple(dims)} for dtype in float_dtypes for dims in itertools.permutations(range(3)))
     def testReduce3DAllPossibleWaysF32(self, dtype, dims):
       input_array = self._MakeSample3DArray(dtype)
       c = self._NewComputation()
@@ -1793,10 +1705,7 @@ def TestFactory(xla_backend,
           dimensions_to_reduce=dims)
       self._ExecuteAndCompareClose(c, expected=[np.sum(input_array, axis=dims)])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testReduceWindowValidUnitStrides(self, dtype):
       if dtype == np.float64 and self.backend.platform == "tpu":
         self.skipTest("TPU doesn't support float64")
@@ -1818,10 +1727,7 @@ def TestFactory(xla_backend,
           padding=padding)
       self._ExecuteAndCompareClose(c, expected=[[[5., 7., 9.]]])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testReduceWindowSameUnitStrides(self, dtype):
       if dtype == np.float64 and self.backend.platform == "tpu":
         self.skipTest("TPU doesn't support float64")
@@ -1843,10 +1749,7 @@ def TestFactory(xla_backend,
           padding=padding)
       self._ExecuteAndCompareClose(c, expected=[[[5., 7., 9.], [4., 5., 6.]]])
 
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in float_dtypes)
     def testReduceWindowValidGeneralStrides(self, dtype):
       if dtype == np.float64 and self.backend.platform == "tpu":
         self.skipTest("TPU doesn't support float64")
@@ -2131,7 +2034,7 @@ def TestFactory(xla_backend,
   ]
 
   def FormatShapeAndDtype(shape, dtype):
-    return "_{}[{}]".format(np.dtype(dtype).name, ",".join(map(str, shape)))
+    return f'_{np.dtype(dtype).name}[{",".join(map(str, shape))}]'
 
   class DLPackTest(parameterized.TestCase):
 
@@ -2148,17 +2051,7 @@ def TestFactory(xla_backend,
 
     # pylint: disable=g-complex-comprehension
     # pyformat: disable
-    @parameterized.named_parameters({
-        "testcase_name": "{}_own={}_gpu={}".format(
-            FormatShapeAndDtype(shape, dtype), take_ownership, gpu),
-        "dtype": dtype,
-        "shape": shape,
-        "take_ownership": take_ownership,
-        "gpu": gpu
-    } for dtype in dlpack_dtypes for shape in testcase_shapes
-                                    for take_ownership in [False, True]
-                                    for gpu in [False, True])
-    # pyformat: enable
+    @parameterized.named_parameters({"testcase_name": f"{FormatShapeAndDtype(shape, dtype)}_own={take_ownership}_gpu={gpu}", "dtype": dtype, "shape": shape, "take_ownership": take_ownership, "gpu": gpu} for dtype in dlpack_dtypes for shape in testcase_shapes for take_ownership in [False, True] for gpu in [False, True])
     def testRoundTrip(self, dtype, shape, take_ownership, gpu):
       if gpu and self.gpu_backend is None:
         raise unittest.SkipTest("Test not running with GPU support")
@@ -2425,10 +2318,7 @@ def TestFactory(xla_backend,
     # physical memory layout is not consecutive, and we test if the program can
     # return the correct logical view of the data.
     @unittest.skipIf(cloud_tpu or tfrt_tpu or external_tpu, "not implemented")
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in int_dtypes + float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in int_dtypes + float_dtypes)
     def testReshape2D(self, dtype):
       arg0 = np.array([[1, 2, 3], [4, 5, 6]], dtype=dtype)
       arg1 = np.array(2, dtype=np.int32)
@@ -2441,10 +2331,7 @@ def TestFactory(xla_backend,
                                          np.testing.assert_equal)
 
     @unittest.skipIf(cloud_tpu or tfrt_tpu, "not implemented")
-    @parameterized.named_parameters({
-        "testcase_name": "_{}".format(dtype.__name__),
-        "dtype": dtype,
-    } for dtype in int_dtypes + float_dtypes)
+    @parameterized.named_parameters({"testcase_name": f"_{dtype.__name__}", "dtype": dtype} for dtype in int_dtypes + float_dtypes)
     def testDynamicShapeArgs(self, dtype):
       full_size = 10
       dynamic_shape_size = 4

@@ -68,10 +68,7 @@ def prepare_model_settings(label_count, sample_rate, clip_duration_ms,
     fft_bin_count = 1 + (_next_power_of_two(window_size_samples) / 2)
     average_window_width = int(math.floor(fft_bin_count / feature_bin_count))
     fingerprint_width = int(math.ceil(fft_bin_count / average_window_width))
-  elif preprocess == 'mfcc':
-    average_window_width = -1
-    fingerprint_width = feature_bin_count
-  elif preprocess == 'micro':
+  elif preprocess in ['mfcc', 'micro']:
     average_window_width = -1
     fingerprint_width = feature_bin_count
   else:
@@ -198,10 +195,7 @@ def create_single_fc_model(fingerprint_input, model_settings, is_training):
                                    initializer=tf.compat.v1.zeros_initializer,
                                    shape=[label_count])
   logits = tf.matmul(fingerprint_input, weights) + bias
-  if is_training:
-    return logits, dropout_rate
-  else:
-    return logits
+  return (logits, dropout_rate) if is_training else logits
 
 
 def create_conv_model(fingerprint_input, model_settings, is_training):
@@ -324,10 +318,7 @@ def create_conv_model(fingerprint_input, model_settings, is_training):
       initializer=tf.compat.v1.zeros_initializer,
       shape=[label_count])
   final_fc = tf.matmul(flattened_second_conv, final_fc_weights) + final_fc_bias
-  if is_training:
-    return final_fc, dropout_rate
-  else:
-    return final_fc
+  return (final_fc, dropout_rate) if is_training else final_fc
 
 
 def create_low_latency_conv_model(fingerprint_input, model_settings,
@@ -453,10 +444,7 @@ def create_low_latency_conv_model(fingerprint_input, model_settings,
       initializer=tf.compat.v1.zeros_initializer,
       shape=[label_count])
   final_fc = tf.matmul(final_fc_input, final_fc_weights) + final_fc_bias
-  if is_training:
-    return final_fc, dropout_rate
-  else:
-    return final_fc
+  return (final_fc, dropout_rate) if is_training else final_fc
 
 
 def create_low_latency_svdf_model(fingerprint_input, model_settings,
@@ -664,10 +652,7 @@ def create_low_latency_svdf_model(fingerprint_input, model_settings,
       initializer=tf.compat.v1.zeros_initializer,
       shape=[label_count])
   final_fc = tf.matmul(final_fc_input, final_fc_weights) + final_fc_bias
-  if is_training:
-    return final_fc, dropout_rate
-  else:
-    return final_fc
+  return (final_fc, dropout_rate) if is_training else final_fc
 
 
 def create_tiny_conv_model(fingerprint_input, model_settings, is_training):
@@ -756,10 +741,7 @@ def create_tiny_conv_model(fingerprint_input, model_settings, is_training):
       shape=[label_count])
   final_fc = (
       tf.matmul(flattened_first_dropout, final_fc_weights) + final_fc_bias)
-  if is_training:
-    return final_fc, dropout_rate
-  else:
-    return final_fc
+  return (final_fc, dropout_rate) if is_training else final_fc
 
 
 def create_tiny_embedding_conv_model(fingerprint_input, model_settings,
@@ -891,7 +873,4 @@ def create_tiny_embedding_conv_model(fingerprint_input, model_settings,
       shape=[label_count])
   final_fc = (
       tf.matmul(flattened_second_dropout, final_fc_weights) + final_fc_bias)
-  if is_training:
-    return final_fc, dropout_rate
-  else:
-    return final_fc
+  return (final_fc, dropout_rate) if is_training else final_fc

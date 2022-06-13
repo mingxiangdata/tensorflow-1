@@ -150,8 +150,7 @@ def mlir_convert_file(graph_def_filename,
   bin_path = resource_loader.get_path_to_datafile(
       "../../../../compiler/mlir/lite/tf_tfl_translate")
 
-  with tempfile.NamedTemporaryFile() as output_file, \
-       tempfile.NamedTemporaryFile("w+") as stdout_file:
+  with tempfile.NamedTemporaryFile() as output_file, tempfile.NamedTemporaryFile("w+") as stdout_file:
     input_shapes = []
     for input_tensor in input_tensors:
       shape = input_tensor[1]
@@ -164,10 +163,10 @@ def mlir_convert_file(graph_def_filename,
     if quantization_params is not None:
       min_vals = ",".join([str(val) for val in quantization_params[1]])
       max_vals = ",".join([str(val) for val in quantization_params[2]])
-      quant_flags = ("-tf-inference-type=" + quantization_params[0] +
-                     " -tf-input-min-values='" + min_vals +
-                     "' -tf-input-max-values='" + max_vals + "' " +
-                     "-emit-quant-adaptor-ops ")
+      quant_flags = ((((
+          (f"-tf-inference-type={quantization_params[0]}" +
+           " -tf-input-min-values='") + min_vals) + "' -tf-input-max-values='")
+                      + max_vals) + "' ") + "-emit-quant-adaptor-ops "
     cmd = ("%s -tf-input-arrays=%s -tf-input-data-types=%s -tf-input-shapes=%s "
            "-tf-output-arrays=%s " + quant_flags + additional_flags +
            "%s -o %s")
@@ -251,9 +250,7 @@ def mlir_convert_jax(input_file_name, is_hlotxt_format, additional_flags=""):
   """
   bin_path = resource_loader.get_path_to_datafile(
       "../../../../compiler/mlir/lite/tf_tfl_translate")
-  hlo_import_type_str = "proto"
-  if is_hlotxt_format:
-    hlo_import_type_str = "hlotxt"
+  hlo_import_type_str = "hlotxt" if is_hlotxt_format else "proto"
   with tempfile.NamedTemporaryFile() as output_file, \
        tempfile.NamedTemporaryFile("w+") as stdout_file:
     cmd = ("%s --import-hlo --enable-hlo-to-tf-conversion "

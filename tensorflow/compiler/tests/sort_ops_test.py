@@ -44,7 +44,7 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
             array_ops.placeholder(dtypes.as_dtype(arg.dtype), arg.shape)
             for arg in args
         ]
-        feeds = {placeholders[i]: args[i] for i in range(0, len(args))}
+        feeds = {placeholders[i]: args[i] for i in range(len(args))}
         output = op(*placeholders)
         if isinstance(output, ops.Tensor):
           output = [output]
@@ -59,10 +59,18 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
     return x.reshape(shape)
 
   def _supported_key_types(self):
-    supported_key_types = set([
-        dtypes.bfloat16.as_numpy_dtype, np.float16, np.float32, np.float64,
-        np.int32, np.uint32, np.int16, np.uint16, np.int8, np.uint8
-    ])
+    supported_key_types = {
+        dtypes.bfloat16.as_numpy_dtype,
+        np.float16,
+        np.float32,
+        np.float64,
+        np.int32,
+        np.uint32,
+        np.int16,
+        np.uint16,
+        np.int8,
+        np.uint8,
+    }
     res = supported_key_types.intersection(self.numeric_types)
     assert res
     return res
@@ -304,8 +312,12 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
 
   def testTopKZeros(self):
     """Tests that positive and negative zeros sort correctly."""
-    supported_types = set(
-        [dtypes.bfloat16.as_numpy_dtype, np.float16, np.float32, np.float64])
+    supported_types = {
+        dtypes.bfloat16.as_numpy_dtype,
+        np.float16,
+        np.float32,
+        np.float64,
+    }
     for dtype in supported_types.intersection(self.numeric_types):
       with self.session() as sess:
         p = array_ops.placeholder(dtype)
@@ -315,12 +327,16 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
             topk,
             {p: np.array([0., -0., 0., 3., -0., -4., 0., -0.], dtype=dtype)})
         self.assertAllEqual(np.array([3., 0., 0., 0.], dtype=dtype), results[0])
-        self.assertEqual(list([3, 0, 2, 6]), list(results[1]))
+        self.assertEqual([3, 0, 2, 6], list(results[1]))
 
   def testTopKInfinities(self):
     """Tests that positive and negative infinity sort correctly."""
-    supported_types = set(
-        [dtypes.bfloat16.as_numpy_dtype, np.float16, np.float32, np.float64])
+    supported_types = {
+        dtypes.bfloat16.as_numpy_dtype,
+        np.float16,
+        np.float32,
+        np.float64,
+    }
     for dtype in supported_types.intersection(self.numeric_types):
       with self.session() as sess:
         p = array_ops.placeholder(dtype)
@@ -334,7 +350,7 @@ class XlaSortOpTest(xla_test.XLATestCase, parameterized.TestCase):
         self.assertAllEqual(
             np.array([float("inf"), 2.0, 1.0, -1.0, -2.0, -float("inf")],
                      dtype=dtype), results[0])
-        self.assertEqual(list([2, 1, 0, 4, 5, 3]), list(results[1]))
+        self.assertEqual([2, 1, 0, 4, 5, 3], list(results[1]))
 
   @parameterized.named_parameters(
       ("Int32", np.int32),
